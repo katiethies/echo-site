@@ -376,10 +376,10 @@
     .marquee::before, .marquee::after { content: ""; position: absolute; top: 0; bottom: 0; width: 56px; z-index: 2; pointer-events: none; }
     .marquee::before { left: 0; background: linear-gradient(90deg, var(--bg), rgba(249,248,243,0)); }
     .marquee::after { right: 0; background: linear-gradient(270deg, var(--bg), rgba(249,248,243,0)); }
-    .marquee-track { display: flex; width: max-content; animation: marquee 34s linear infinite; }
+    .marquee-track { display: flex; width: max-content; animation: marquee 34s linear infinite; transform: translateZ(0); -webkit-backface-visibility: hidden; backface-visibility: hidden; will-change: transform; }
     .marquee:hover .marquee-track { animation-play-state: paused; }
     .marquee-group { display: flex; align-items: center; gap: 66px; padding-right: 66px; }
-    @keyframes marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+    @keyframes marquee { from { transform: translate3d(0,0,0); } to { transform: translate3d(-50%,0,0); } }
     .logo-img { max-height: 34px; max-width: 132px; width: auto; height: auto; object-fit: contain; display: block; flex: 0 0 auto; opacity: .9; }
 
     /* 3 — Editorial heading reveal (word-by-word rise). Gated on html.js so headings stay visible with no JS. */
