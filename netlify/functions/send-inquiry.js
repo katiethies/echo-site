@@ -1,5 +1,4 @@
-const fs = require('fs');
-const path = require('path');
+const PDF_URL = process.env.PDF_URL || "https://qtbrpqyohcpqeieyjwgg.supabase.co/storage/v1/object/public/echo-assets/echo-automation-case-study.pdf";
 
 const esc = s => String(s || '').replace(/[&<>"']/g, c =>
   ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -15,13 +14,6 @@ exports.handler = async (event) => {
   const email = String(d.email || '').trim().slice(0, 200);
   if (!name || !/^\S+@\S+\.\S+$/.test(email)) return { statusCode: 400, body: 'Invalid input' };
 
-  let pdf;
-  try {
-    pdf = fs.readFileSync(path.join(__dirname, 'assets', 'designs.pdf')).toString('base64');
-  } catch (err) {
-    console.error('PDF not found:', err.message);
-    return { statusCode: 500, body: 'Server error' };
-  }
 
   const from = process.env.FROM_EMAIL || 'Echo <onboarding@resend.dev>';
   const send = payload => fetch('https://api.resend.com/emails', {
@@ -32,6 +24,23 @@ exports.handler = async (event) => {
     },
     body: JSON.stringify(payload)
   });
+
+  // Fetch the PDF ourselves so a broken link fails loudly instead of silently
+  let pdf;
+  try {
+    const r = await fetch(PDF_URL);
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    pdf = Buffer.from(await r.arrayBuffer()).toString('base64');
+  } catch (err) {
+    console.error('PDF fetch failed:', err.message);
+    await send({
+      from,
+      to: process.env.TO_EMAIL,
+      subject: 'ALERT: the PDF link is broken',
+      html: '<p>The PDF link failed (' + esc(err.message) + '). ' + esc(name) + ' (' + esc(email) + ') did not get their PDF.</p>'
+    }).catch(() => {});
+    return { statusCode: 502, body: 'PDF unavailable' };
+  }
 
   // 1. Send the PDF to the visitor
   const toVisitor = await send({
