@@ -1,4 +1,4 @@
-const PDF_URL = process.env.PDF_URL || "https://qtbrpqyohcpqeieyjwgg.supabase.co/storage/v1/object/public/echo-assets/echo-automation-case-study.pdf";
+const PDF_URL = process.env.PDF_URL || "https://qtbrpqyohcpqeieyjwgg.supabase.co/storage/v1/object/public/echo-assets/echo-design-samples.pdf";
 
 const esc = s => String(s || '').replace(/[&<>"']/g, c =>
   ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -46,10 +46,12 @@ exports.handler = async (event) => {
   const toVisitor = await send({
     from,
     to: email,
-    subject: 'Your PDF: real client designs from Echo',
-    html: `<p>Hi ${esc(name)},</p>
-           <p>Here's the PDF of real client designs. It's attached to this email.</p>
-           <p>Reply to this email with any questions.</p>`,
+    subject: "PDF inside [REAL client creative from Echo's design team]",
+    html: `<p>Thanks for reaching out to see examples of our client work. We’re proud of our design team’s talent 💪</p>
+           <p>Your PDF is attached.</p>
+           <p>Any questions, feel free to reply to this email or reach out to Katie directly.</p>
+           <p>Happy emailing ✌️</p>
+           <p>~ KT &amp; the team at Echo</p>`,
     attachments: [{ filename: 'Echo-client-designs.pdf', content: pdf }]
   });
   if (!toVisitor.ok) {
